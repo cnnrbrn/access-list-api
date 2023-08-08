@@ -1,14 +1,14 @@
 import Fastify from "fastify";
 import * as fs from "fs";
 import { readFile, set_fs, utils } from "xlsx/xlsx.mjs";
-// import excelDateToJSDate from "./utils/excelDateToJSDate.mjs";
 
 set_fs(fs);
 
-const START_COLUMN = "F";
-const END_COLUMN = "AH";
-const START_ROW = 58;
-const END_ROW = 159;
+const START_COLUMN = "I";
+const END_COLUMN = "AM";
+const START_ROW = 33;
+const END_ROW = 231;
+const WEEK_COLUMN = "B";
 
 const workbook = readFile("access-list.xlsx");
 
@@ -20,8 +20,9 @@ fastify.get("/", async () => {
 	const sheet = workbook.Sheets["Access List"];
 
 	// get all the weeks
-	sheet["!ref"] = `A${START_ROW}:A${END_ROW}`;
+	sheet["!ref"] = `A${START_ROW}:${WEEK_COLUMN}${END_ROW}`;
 	const allWeeks = utils.sheet_to_json(sheet, { header: 1, raw: false }).flat();
+	console.log("allWeeks", allWeeks);
 
 	// get the classes
 	sheet["!ref"] = `${START_COLUMN}1:${END_COLUMN}1`;
@@ -32,14 +33,18 @@ fastify.get("/", async () => {
 
 	const finalArray = {};
 
-	// use this method in order to be able to break early
 	const keys = Object.keys(classes);
 
-	for (let i = 0; i < keys.length; i++) {
-		if (i !== 3) continue;
+	const classesToSkip = ["Aug 19 F", "Mar 20 F", "Aug 20 F", "FED2 Oct 21 F", "Jan 21 F"];
 
+	for (let i = 0; i < keys.length; i++) {
 		const column = keys[i];
 		const studentClass = classes[column];
+
+		if (classesToSkip.includes(studentClass)) {
+			continue;
+		}
+
 		classesToExport.push(studentClass);
 
 		const range = `${column}${START_ROW}:${column}${END_ROW}`;
