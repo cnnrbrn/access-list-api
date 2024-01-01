@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@fastify/cors": "^8.3.0",
     "fastify": "^4.2.1",
     "fs": "^0.0.1-security",
     "xlsx": "^0.18.5"

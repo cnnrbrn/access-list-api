@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import cors from '@fastify/cors'
 import * as fs from "fs";
 import { readFile, set_fs, utils } from "xlsx/xlsx.mjs";
 
@@ -15,6 +16,10 @@ const workbook = readFile("access-list.xlsx");
 const fastify = Fastify({
 	logger: true,
 });
+
+await fastify.register(cors, { 
+  // put your options here
+})
 
 fastify.get("/", async () => {
 	const sheet = workbook.Sheets["Access List"];
@@ -67,7 +72,7 @@ fastify.get("/", async () => {
 
 const start = async () => {
 	try {
-		await fastify.listen({ port: 3000 });
+		await fastify.listen({ port: 3010 });
 	} catch (err) {
 		fastify.log.error(err);
 		process.exit(1);
